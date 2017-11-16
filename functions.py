@@ -1,26 +1,25 @@
 import math
 from scipy import misc
 import glob
+import zlib, struct
 
 
 
+def png_pack(png_tag, data):
+        chunk_head = png_tag + data
+        return (struct.pack("!I", len(data)) +
+                chunk_head +
+                struct.pack("!I", 0xFFFFFFFF & zlib.crc32(chunk_head)))
 
 def write_png(buf, width, height):
     """ buf: must be bytes or a bytearray in Python3.x,
         a regular string in Python2.x.
     """
-    import zlib, struct
 
     # reverse the vertical line order and add null bytes at the start
     width_byte_4 = width * 4
     raw_data = b''.join(b'\x00' + buf[span:span + width_byte_4]
                         for span in range((height - 1) * width_byte_4, -1, - width_byte_4))
-
-    def png_pack(png_tag, data):
-        chunk_head = png_tag + data
-        return (struct.pack("!I", len(data)) +
-                chunk_head +
-                struct.pack("!I", 0xFFFFFFFF & zlib.crc32(chunk_head)))
 
     return b''.join([
         b'\x89PNG\r\n\x1a\n',
@@ -31,7 +30,6 @@ def write_png(buf, width, height):
 
 
 def saveAsPNG(array, filename):
-    import struct
     if any([len(row) != len(array[0]) for row in array]):
         raise ValueError, "Array should have elements of equal size"
 
@@ -193,11 +191,11 @@ def spiral(b, length):
 
 
 # parameterCurve(flower, 1000, 5, 0, 2, 100)
-# parameterCurve(flower, 1000, 5, 0, 4, 100)
+parameterCurve(flower, 20000, 5, 0, 16, 100)
 # traceCurve(lambda t: circ(t,400), 10000, 10, 1000)
 # parameterCurve(straightLineHomotopy(lambda t: square(t, 200), lambda t: circ(t, 400)), 20000, 5, 0, 1, 1000)
 
-traceCurve(spiral(20, 6*math.pi), 20000, 5, 100)
+# traceCurve(spiral(20, 6*math.pi), 20000, 5, 100)
 
 
 
